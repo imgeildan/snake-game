@@ -12,7 +12,7 @@ class Game
 
     def draw(victim_animal)
         Image.new("images/#{victim_animal}.png", x: @ball_x * @square_size, y: @ball_y * @square_size, width: 30, height: 30, size: @square_size, z: 10)
-        Text.new(text_message, color: 'green', x: 10, y: 10, size: 25, z: 1)
+        Text.new(text_message, color: 'green', x: 50, y: 10, size: 25, z: 1)
     end
 
     def snake_hit_ball?(x, y)
