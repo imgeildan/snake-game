@@ -25,6 +25,10 @@ class Game
         @ball_y = rand(Window.height / @square_size)
     end
 
+    def get_score
+        @score
+    end
+
     def finish
         @finished = true
     end

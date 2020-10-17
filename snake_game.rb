@@ -13,6 +13,12 @@ set width: 780
 snake = Snake.new
 game = Game.new
 
+@start_song = Music.new('music/play_the_game.mp3')
+@start_song.loop = true
+@start_song.play
+@start_song.volume = 25
+
+Text.new('Mute', color: 'yellow', x: 10, y: 5, size: 15, z: 1)
 Text.new('Select game music (press a key)', color: 'purple', x: 100, y: 30, size: 20, z: 1)
 Text.new('1- Matrix', color: 'green', x: 100, y: 70, size: 20, z: 1)
 Text.new('2- Ruby :)', color: 'red', x: 100, y: 100, size: 20, z: 1)
@@ -36,6 +42,10 @@ on :key_down do |event|
     when '6'
         exit
     end
+end
+
+on :mouse_down do |event|
+  @start_song.stop if event.button == :left && event.x >= 10 && event.x <= 40 && event.y <= 35 && event.y >= 5
 end
 
 update do
@@ -103,6 +113,7 @@ update do
 
                         update do
                             unless @victim.nil?
+                                @start_song.stop
                                 close
                             end
                         end
@@ -115,8 +126,8 @@ end
 show
 
 if @song
-    @song.play
     @song.loop = true
+    @song.play
     @song.volume = 80
 end
 
@@ -125,13 +136,18 @@ update do
     snake.draw(@color)
 
     if game.finished?
-        t = Time.now
-
         Text.new('Quit', color: 'green', x: 700, y: 10, size: 25, z: 1)
-        death_song = Sound.new('music/funeral_march_chopin.wav')
-        death_song.play
-        sleep 7
-        if Time.now == t + 7 then next end
+        if @song.path.include?('matrix') || @song.path.include?('cant_touch_this')
+            death_song = Sound.new('music/ops_i_did_it_again.wav')
+            death_song.play
+            sleep 12
+            next
+        else
+            death_song = Sound.new('music/funeral_march_chopin.wav')
+            death_song.play
+            sleep 7
+            next
+        end
     end
     @song.resume if @song
     clear
@@ -144,7 +160,6 @@ update do
     game.draw(@victim)
 
     if game.snake_hit_ball?(snake.x, snake.y)
-
         game.record_hit
         snake.grow
 
@@ -163,14 +178,15 @@ update do
 
     if snake.hit_itself?
         clear
-        @song.pause if @song
         game.finish
         game.draw(@victim)
-        Image.new('images/ruby_gem.png', x: 256, y: 15, width: 20, height: 20, size: 5, z: 1)
+        @song.pause if @song
+        sleep 0.5
+        Image.new('images/ruby_gem.png', x: (game.get_score >= 10 ? 261 : 246), y: 15, width: 20, height: 20, size: 5, z: 1)
         Image.new('images/game_over.png', x: 90, y: 100, width: 90, height: 90, size: 50, z: 10)
-        Image.new('images/chpn_piano.png', x: 250, y: 100, width: 100, height: 100,size: 150,z: 10)
-        Image.new('images/angel_halo.png', x: 490, y: 100, width: 50, height: 35, size: 5, z: 1)
-        Image.new('images/python.png', x: 470, y: 130, width: 100, height: 100, size: 70, z: 10)
+        Image.new(@song.path.include?('matrix') || @song.path.include?('cant_touch_this') ? 'images/paint_it_black.jpg' : 'images/chpn_piano.png', x: 250, y: 100, width: 100, height: 100,size: 150,z: 10)
+        Image.new('images/angel_halo.png', x: 445, y: 80, width: 50, height: 35, size: 5, z: 1)
+        Image.new('images/python.png', x: 420, y: 110, width: 100, height: 100, size: 70, z: 10)
         Text.new('Quit', color: 'green', x: 700, y: 10, size: 25, z: 1)
     end
 end
